@@ -9,6 +9,7 @@ tsv_files/
 __pycache__/
 *.py[cod]
 *.py
+!utilities.py
 *$py.class
 
 # C extensions
