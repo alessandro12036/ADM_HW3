@@ -29,6 +29,7 @@ waits an incremental amount of time before making a new one."""
     for limit in range(0, n, 50):
         content = requests.get(main_url,
                                params={"limit": limit})
+        # check if we get an error
         if content.status_code == 404:
             print(f"Page with limit {limit} was not found. Interrumpting and returning pages found")
             break
@@ -57,14 +58,15 @@ html_pages/ranking_page_i/article_j. Given the long time needed
 to crawl all the animes, we created a counter variable and saved it as
 a binary file in order to be able to continue from where the last 
 person running the function left off."""
-
+    
+    #we created a file which store a counter corresponding to the last saved page 
     if "counter_pages" not in os.listdir():
         start = 0
     else:
         with open("counter_pages", "rb") as counter_file:
             start = pickle.load(counter_file) + 1
-
     print(f"Starting from anime #{start}")
+    
     n = len(urls)
     for i in range(start, n):
         ranking_page = str(int(np.floor(i/50)))
@@ -90,7 +92,8 @@ def collect_info(num_article, folder='tsv_files'):
 from each html page and saves it as a file named 'anime_i'."""
 
     ranking_page = str(int(np.floor(num_article / 50)))
-    article = f'{path_ex_aurelie}/html_pages/ranking_page_{ranking_page}/article_{num_article}.html'
+    article = f'html_pages/ranking_page_{ranking_page}/article_{num_article}.html'
+    # we read the html page of teh given article 
     with open(article, "r", encoding="utf-8") as file:
         art = bs(file.read(), 'html.parser')
 
@@ -147,7 +150,7 @@ from each html page and saves it as a file named 'anime_i'."""
                             date_format_endDate = "%b %Y"
                         else:
                             date_format_endDate = "%Y"
-                        # convert str_releaseDate into a datetime
+                        # convert str_endDate into a datetime
                         endDate = dt.datetime.strptime(str_endDate, date_format_endDate)
 
                     else:
@@ -315,8 +318,6 @@ each time) and returns it."""
     voc = set()
     i=0
     for doc in corpus :
-        #print(i)
-        #i+=1
         voc = voc.union(set(doc))
 
     dict_voc = dict(zip(sorted(voc),range(len(voc))))
@@ -406,8 +407,6 @@ def search_engine_1(voc, inverted_index, urls):
 """This function takes a query from the user and returns all the
 animes whose synopsis include all the words in the query."""
 
-    path_ex_aurelie ='C:/Users/aurel/OneDrive/Bureau/IMT/3ème année IMT/0_Cours Sapienza/ADM/Homework/Homework 3'
-    path_ex_alessandro = "."
     # ask the query to the user
     query = input('What is your query ?')
 
