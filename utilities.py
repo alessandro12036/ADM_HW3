@@ -15,6 +15,11 @@ import heapq
 
 def take_n_urls(n):
 
+"""This function extracts the url of each animes and returns
+them as a list. Given the high number of requests it has to perform, it checks
+the status code of each request, and, if an error code has occured,
+waits an incremental amount of time before making a new one."""
+
     main_url = "https://myanimelist.net/topanime.php"
 
     # this list will contain all the urls we'll retrieve
@@ -44,6 +49,15 @@ def take_n_urls(n):
 
 
 def save_html_pages(urls):
+
+"""Extracts the html of each url provided in the input
+and saves it in a folder corresponding to its page in the 
+anime ranking list. The path of each file has the structure
+html_pages/ranking_page_i/article_j. Given the long time needed
+to crawl all the animes, we created a counter variable and saved it as
+a binary file in order to be able to continue from where the last 
+person running the function left off."""
+
     if "counter_pages" not in os.listdir():
         start = 0
     else:
@@ -71,6 +85,10 @@ def save_html_pages(urls):
 
 
 def collect_info(num_article, folder='tsv_files'):
+
+"""This function extracts all the information we need for our dataset
+from each html page and saves it as a file named 'anime_i'."""
+
     ranking_page = str(int(np.floor(num_article / 50)))
     article = f'{path_ex_aurelie}/html_pages/ranking_page_{ranking_page}/article_{num_article}.html'
     with open(article, "r", encoding="utf-8") as file:
@@ -238,18 +256,24 @@ def collect_info(num_article, folder='tsv_files'):
                              animeCharacters, animeVoices, animeStaff])
 
 
-def process_text(text):
-    #nltk.download('stopwords')
+def process_text(text, stemmer_type="porter"):
+
+"""This function process the text provided as a input and returns
+a list of stemmed tokenized words, with stopwords and punctuation filtered
+out."""
+
     # For identifying the stop words
     eng_stopwords = stopwords.words("english")
 
     # For stemming
-    porter = nltk.stem.PorterStemmer()
-    lancaster = nltk.stem.LancasterStemmer()
+    if stemmer_type == "lancaster":
+        stemmer = nltk.stem.LancasterStemmer()
+    elif stemmer_type == "porter":
+        stemmer = nltk.stem.PorterStemmer()
 
     try:
         tokenized = nltk.word_tokenize(text)
-        stemmed = [porter.stem(word) for word in tokenized if ((word.lower() not in eng_stopwords) and (word not in string.punctuation))]
+        stemmed = [stemmer.stem(word) for word in tokenized if ((word.lower() not in eng_stopwords) and (word not in string.punctuation))]
     except TypeError as e:
         print(text)
         raise TypeError
@@ -257,11 +281,18 @@ def process_text(text):
 
 
 def alphanumeric_sort(key):
+
+"""This function provides a way to correctly order files without
+having them to be named with leading zeros."""
+
     num = int(re.search("([0-9]+)", key).group(0))
     return num
 
 
 def merge_tsvs(path, colnames):
+
+"""This function merges each tsv in a single dataframe"""
+
     files = sorted(os.listdir(path), key=alphanumeric_sort)
     df = pd.read_csv(path+files[0],
                      names=colnames,
@@ -275,6 +306,12 @@ def merge_tsvs(path, colnames):
 
 
 def create_vocabulary(corpus, name_voc_file = "vocabulary.pkl"):
+
+"""This function creates a vocabulary of all the words found in the
+corpus and assigns to each a specific integer term_id. It then saves 
+this vocabulary as a binary file (so to avoid having to recreate it
+each time) and returns it."""
+
     voc = set()
     i=0
     for doc in corpus :
@@ -289,6 +326,13 @@ def create_vocabulary(corpus, name_voc_file = "vocabulary.pkl"):
 
 
 def inverted_index(corpus, voc, name_inv_ind_file="inverted_index.pkl"):
+
+"""This function creates an inverted index, meaning a dictionary with
+the term_id corresponding to each word in the vocabulary 'voc' as 
+key and the documents containing that specific word as values.
+As for the previous function, we both return the final inverted_index
+and save it as a binary file for further use."""
+
     # create a inverted_index "empty", i.e. only with term_id of vocabulary
     inverted_index = dict()
     for term, term_id in voc.items():
@@ -314,6 +358,10 @@ def inverted_index(corpus, voc, name_inv_ind_file="inverted_index.pkl"):
 
 
 def download_corpus(name_file_corpus = 'df_with_tokens.p'):
+
+"""This function extracts or downloads the corpus (depending on
+whether we've already created it) and returns it."""
+
     print('Downloading corpus... ', end ='')
     with open(name_file_corpus, 'rb') as file:
         df = pickle.load(file)
@@ -324,6 +372,10 @@ def download_corpus(name_file_corpus = 'df_with_tokens.p'):
 
 
 def download_voc(corpus, name_voc_file):
+
+"""This function extracts or downloads the vocabulary (depending on
+whether we've already created it) and returns it."""
+
     print('Downloading vocabulary... ', end ='')
     if name_voc_file not in os.listdir():
         voc = create_vocabulary(corpus, name_voc_file)
@@ -335,6 +387,10 @@ def download_voc(corpus, name_voc_file):
 
 
 def download_inverted_index(corpus,voc, name_inv_ind_file):
+
+"""This function extracts or downloads the inverted index (depending 
+on whether we've already created it) and returns it."""
+
     print('Downloading inverted index... ', end ='')
     if name_inv_ind_file not in os.listdir():
         inv_ind = inverted_index(corpus,voc, name_inv_ind_file)
@@ -346,6 +402,10 @@ def download_inverted_index(corpus,voc, name_inv_ind_file):
 
 
 def search_engine_1(voc, inverted_index, urls):
+
+"""This function takes a query from the user and returns all the
+animes whose synopsis include all the words in the query."""
+
     path_ex_aurelie ='C:/Users/aurel/OneDrive/Bureau/IMT/3ème année IMT/0_Cours Sapienza/ADM/Homework/Homework 3'
     path_ex_alessandro = "."
     # ask the query to the user
@@ -378,7 +438,7 @@ def search_engine_1(voc, inverted_index, urls):
                     return
 
             else:  # no document answers to the query
-                print('Nothing correspond to your queries')
+                print('Nothing corresponds to your queries')
                 return
 
         # Now we have the doc IDs so we can merge interesting information
@@ -395,6 +455,13 @@ def search_engine_1(voc, inverted_index, urls):
 
 
 def get_tfidf(word, doc, corpus, idf=None):
+
+"""This function computes the document's tfidf score for
+the word given in input and then returns it. Since the idf only
+depends on the word and the corpus and not on the specific text 
+we're computing the score for, we also return the calculated idf so 
+we can store it and use it every time that word occurs again."""
+
     tf = doc.count(word) / len(doc)
     counter_docs = 0
     # if the idf parameter has not been provided, we compute it
@@ -408,6 +475,14 @@ def get_tfidf(word, doc, corpus, idf=None):
 
 
 def second_inverted_index(corpus, voc, name_inv_ind_tf_idf_file="inverted_index_2.p", name_idfs_file="idfs.p"):
+
+"""This function creates an inverted index, meaning a dictionary with
+the term_id corresponding to each word in the vocabulary 'voc' as 
+key and lists [document_id, tfidf] as values.
+It then sorts the documents for each word accorsing to their tfidf
+scores, saves both the inverted index and the idfs computed as 
+binary pickle files and returns them."""
+
     inverted_index_2 = dict()
     # first, we initialize each field in the inverted_index
     for term_id in voc.values():
@@ -447,6 +522,10 @@ def second_inverted_index(corpus, voc, name_inv_ind_tf_idf_file="inverted_index_
 
 
 def download_inverted_index_tfidf(corpus,voc, name_inv_ind_tf_idf_file, name_idfs_file):
+
+"""This function extracts or downloads the inverted index with the tfidfs
+(depending on whether we've already created it) and returns it."""
+
     print('Downloading inverted index tf.idf... ', end ='')
     if (name_inv_ind_tf_idf_file not in os.listdir()) or (name_idfs_file not in os.listdir()):
         ii_2, idfs = second_inverted_index(corpus,voc, name_inv_ind_tf_idf_file, name_idfs_file)
@@ -460,6 +539,10 @@ def download_inverted_index_tfidf(corpus,voc, name_inv_ind_tf_idf_file, name_idf
 
 
 def cosine_similarity(vec1, vec2):
+
+"""This function computes the cosine similarity between the two
+vectors provided as input"""
+
     num = np.dot(vec1, vec2)
     denom = np.linalg.norm(vec1) * np.linalg.norm(vec2)
     cos = num / denom
@@ -467,6 +550,10 @@ def cosine_similarity(vec1, vec2):
 
 
 def tanimoto_distance(vec1, vec2):
+
+"""This function computes the tanimoto similarity between the two
+vectors provided as input"""
+
     num = np.dot(vec1, vec2)
     denom = np.square(np.linalg.norm(vec1)) + np.square(np.linalg.norm(vec2)) - num
     tanimoto = num / denom
@@ -474,6 +561,11 @@ def tanimoto_distance(vec1, vec2):
 
 
 def search_k_matches(query, corpus, voc, ii, idfs, urls, k=10):
+
+"""This function finds the documents that match the query provided
+by the user, creates a max-heap out of them according to their 
+cosine similarity with the query and then returns the top k results."""
+
     # store the file with all information about the set of html pages (use at the end to return information of relevant documents)
     df = pd.read_csv("./html_df.csv")
 
@@ -530,6 +622,11 @@ def search_k_matches(query, corpus, voc, ii, idfs, urls, k=10):
 
 
 def process_query(query):
+
+"""This function processes a query string with the structure
+'main_query [parameter1=parameter1_query, parameter2=parameter2_query...'
+into its single components and returns them as a dictionary query_dict."""
+
     query_dict = dict()
     main_query = re.search("^(.+)\[", query)
     anime_voices = re.search("voices=\(([^\)]+)\)", query)
@@ -564,6 +661,10 @@ def process_query(query):
 # we need to treat the main query as it was its own document (I found references online on this).
 # This is the same thing i implemented in 2.2.2, I just put it in a function here.
 def evaluate_main_query(query, corpus, voc, ii, idfs):
+
+"""this function finds all the documents that match at least part
+of the main query"""
+
     dict_relevant = {}
     for word in query:
         if word in voc.keys():  # checks if query is in our vocabulary
@@ -576,8 +677,12 @@ def evaluate_main_query(query, corpus, voc, ii, idfs):
     return dict_relevant
 
 
-# Here we return a vector of binary values based on the parameterized queries
 def evaluate_parameters(query_d, df, anime_num):
+
+"""For each parameter contained in the query dictionary, this function
+evaluates the correspondance with the field in the anime_num provided
+as input and returns an array of boolean and float values."""
+
     relevant_row = df.iloc[anime_num]
     vector = []
     for dict_key in sorted(query_d.keys()):
@@ -623,8 +728,14 @@ def evaluate_parameters(query_d, df, anime_num):
     return vector
 
 
-# Here we obtain the query via form
 def get_query_with_form():
+
+"""This function gets the query string via a form. It returns a string
+with the structure 'main_query [parameter1=parameter1_query, 
+parameter2=parameter2_query...' so that regardless of whether it was 
+btained directly or through this form, the inner logic of the overall
+algorithm doesn't change."""
+
     query_d = dict()
     main_query = input("Enter your query: ")
     year = input("Year it was released: ")
@@ -640,6 +751,15 @@ def get_query_with_form():
 
 
 def search_k_matches_2(corpus, voc, ii, idfs, urls, query=None, k=10):
+
+"""This function finds the documents that match the query provided
+by the user using both the main query and the parameterized elements.
+It uses the cosine distance for what concerts the tfidfs and the 
+tanimoto distance (more suited to binary values) to evaluate the
+correspondance between the parameters and the anime fields. 
+It then obtains a single score by averaging these two distances out,
+creates a max-heap and then returns the top k results."""
+
     df = pd.read_csv("./html_df.csv")
     if not query:
         query = get_query_with_form()
