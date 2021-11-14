@@ -15,10 +15,10 @@ import heapq
 
 def take_n_urls(n):
 
-"""This function extracts the url of each animes and returns
-them as a list. Given the high number of requests it has to perform, it checks
-the status code of each request, and, if an error code has occured,
-waits an incremental amount of time before making a new one."""
+    """This function extracts the url of each animes and returns
+    them as a list. Given the high number of requests it has to perform, it checks
+    the status code of each request, and, if an error code has occured,
+    waits an incremental amount of time before making a new one."""
 
     main_url = "https://myanimelist.net/topanime.php"
 
@@ -51,13 +51,13 @@ waits an incremental amount of time before making a new one."""
 
 def save_html_pages(urls):
 
-"""Extracts the html of each url provided in the input
-and saves it in a folder corresponding to its page in the 
-anime ranking list. The path of each file has the structure
-html_pages/ranking_page_i/article_j. Given the long time needed
-to crawl all the animes, we created a counter variable and saved it as
-a binary file in order to be able to continue from where the last 
-person running the function left off."""
+    """Extracts the html of each url provided in the input
+    and saves it in a folder corresponding to its page in the 
+    anime ranking list. The path of each file has the structure
+    html_pages/ranking_page_i/article_j. Given the long time needed
+    to crawl all the animes, we created a counter variable and saved it as
+    a binary file in order to be able to continue from where the last 
+    person running the function left off."""
     
     #we created a file which store a counter corresponding to the last saved page 
     if "counter_pages" not in os.listdir():
@@ -88,8 +88,8 @@ person running the function left off."""
 
 def collect_info(num_article, folder='tsv_files'):
 
-"""This function extracts all the information we need for our dataset
-from each html page and saves it as a file named 'anime_i'."""
+    """This function extracts all the information we need for our dataset
+    from each html page and saves it as a file named 'anime_i'."""
 
     ranking_page = str(int(np.floor(num_article / 50)))
     article = f'html_pages/ranking_page_{ranking_page}/article_{num_article}.html'
@@ -261,9 +261,9 @@ from each html page and saves it as a file named 'anime_i'."""
 
 def process_text(text, stemmer_type="porter"):
 
-"""This function process the text provided as a input and returns
-a list of stemmed tokenized words, with stopwords and punctuation filtered
-out."""
+    """This function process the text provided as a input and returns
+    a list of stemmed tokenized words, with stopwords and punctuation filtered
+    out."""
 
     # For identifying the stop words
     eng_stopwords = stopwords.words("english")
@@ -285,8 +285,8 @@ out."""
 
 def alphanumeric_sort(key):
 
-"""This function provides a way to correctly order files without
-having them to be named with leading zeros."""
+    """This function provides a way to correctly order files without
+    having them to be named with leading zeros."""
 
     num = int(re.search("([0-9]+)", key).group(0))
     return num
@@ -294,7 +294,7 @@ having them to be named with leading zeros."""
 
 def merge_tsvs(path, colnames):
 
-"""This function merges each tsv in a single dataframe"""
+    """This function merges each tsv in a single dataframe"""
 
     files = sorted(os.listdir(path), key=alphanumeric_sort)
     df = pd.read_csv(path+files[0],
@@ -310,10 +310,10 @@ def merge_tsvs(path, colnames):
 
 def create_vocabulary(corpus, name_voc_file = "vocabulary.pkl"):
 
-"""This function creates a vocabulary of all the words found in the
-corpus and assigns to each a specific integer term_id. It then saves 
-this vocabulary as a binary file (so to avoid having to recreate it
-each time) and returns it."""
+    """This function creates a vocabulary of all the words found in the
+    corpus and assigns to each a specific integer term_id. It then saves 
+    this vocabulary as a binary file (so to avoid having to recreate it
+    each time) and returns it."""
 
     voc = set()
     i=0
@@ -328,11 +328,11 @@ each time) and returns it."""
 
 def inverted_index(corpus, voc, name_inv_ind_file="inverted_index.pkl"):
 
-"""This function creates an inverted index, meaning a dictionary with
-the term_id corresponding to each word in the vocabulary 'voc' as 
-key and the documents containing that specific word as values.
-As for the previous function, we both return the final inverted_index
-and save it as a binary file for further use."""
+    """This function creates an inverted index, meaning a dictionary with
+    the term_id corresponding to each word in the vocabulary 'voc' as 
+    key and the documents containing that specific word as values.
+    As for the previous function, we both return the final inverted_index
+    and save it as a binary file for further use."""
 
     # create a inverted_index "empty", i.e. only with term_id of vocabulary
     inverted_index = dict()
@@ -360,8 +360,8 @@ and save it as a binary file for further use."""
 
 def download_corpus(name_file_corpus = 'df_with_tokens.p'):
 
-"""This function extracts or downloads the corpus (depending on
-whether we've already created it) and returns it."""
+    """This function extracts or downloads the corpus (depending on
+    whether we've already created it) and returns it."""
 
     print('Downloading corpus... ', end ='')
     with open(name_file_corpus, 'rb') as file:
@@ -374,8 +374,8 @@ whether we've already created it) and returns it."""
 
 def download_voc(corpus, name_voc_file):
 
-"""This function extracts or downloads the vocabulary (depending on
-whether we've already created it) and returns it."""
+    """This function extracts or downloads the vocabulary (depending on
+    whether we've already created it) and returns it."""
 
     print('Downloading vocabulary... ', end ='')
     if name_voc_file not in os.listdir():
@@ -389,8 +389,8 @@ whether we've already created it) and returns it."""
 
 def download_inverted_index(corpus,voc, name_inv_ind_file):
 
-"""This function extracts or downloads the inverted index (depending 
-on whether we've already created it) and returns it."""
+    """This function extracts or downloads the inverted index (depending 
+    on whether we've already created it) and returns it."""
 
     print('Downloading inverted index... ', end ='')
     if name_inv_ind_file not in os.listdir():
@@ -404,8 +404,8 @@ on whether we've already created it) and returns it."""
 
 def search_engine_1(voc, inverted_index, urls):
 
-"""This function takes a query from the user and returns all the
-animes whose synopsis include all the words in the query."""
+    """This function takes a query from the user and returns all the
+    animes whose synopsis include all the words in the query."""
 
     # ask the query to the user
     query = input('What is your query ?')
@@ -441,7 +441,7 @@ animes whose synopsis include all the words in the query."""
                 return
 
         # Now we have the doc IDs so we can merge interesting information
-        html_df = pd.read_csv(path_ex_alessandro + "/html_df.csv")  # csv which contains tsv line of each document
+        html_df = pd.read_csv("./html_df.csv")  # csv which contains tsv line of each document
         cols = ["animeTitle", "animeDescription"]
         result = html_df.iloc[sorted(list(docs_list))][cols]
         result['Url'] = [urls[i] for i in sorted(list(docs_list))]
@@ -455,11 +455,11 @@ animes whose synopsis include all the words in the query."""
 
 def get_tfidf(word, doc, corpus, idf=None):
 
-"""This function computes the document's tfidf score for
-the word given in input and then returns it. Since the idf only
-depends on the word and the corpus and not on the specific text 
-we're computing the score for, we also return the calculated idf so 
-we can store it and use it every time that word occurs again."""
+    """This function computes the document's tfidf score for
+    the word given in input and then returns it. Since the idf only
+    depends on the word and the corpus and not on the specific text 
+    we're computing the score for, we also return the calculated idf so 
+    we can store it and use it every time that word occurs again."""
 
     tf = doc.count(word) / len(doc)
     counter_docs = 0
@@ -475,12 +475,12 @@ we can store it and use it every time that word occurs again."""
 
 def second_inverted_index(corpus, voc, name_inv_ind_tf_idf_file="inverted_index_2.p", name_idfs_file="idfs.p"):
 
-"""This function creates an inverted index, meaning a dictionary with
-the term_id corresponding to each word in the vocabulary 'voc' as 
-key and lists [document_id, tfidf] as values.
-It then sorts the documents for each word accorsing to their tfidf
-scores, saves both the inverted index and the idfs computed as 
-binary pickle files and returns them."""
+    """This function creates an inverted index, meaning a dictionary with
+    the term_id corresponding to each word in the vocabulary 'voc' as 
+    key and lists [document_id, tfidf] as values.
+    It then sorts the documents for each word accorsing to their tfidf
+    scores, saves both the inverted index and the idfs computed as 
+    binary pickle files and returns them."""
 
     inverted_index_2 = dict()
     # first, we initialize each field in the inverted_index
@@ -522,8 +522,8 @@ binary pickle files and returns them."""
 
 def download_inverted_index_tfidf(corpus,voc, name_inv_ind_tf_idf_file, name_idfs_file):
 
-"""This function extracts or downloads the inverted index with the tfidfs
-(depending on whether we've already created it) and returns it."""
+    """This function extracts or downloads the inverted index with the tfidfs
+    (depending on whether we've already created it) and returns it."""
 
     print('Downloading inverted index tf.idf... ', end ='')
     if (name_inv_ind_tf_idf_file not in os.listdir()) or (name_idfs_file not in os.listdir()):
@@ -539,8 +539,8 @@ def download_inverted_index_tfidf(corpus,voc, name_inv_ind_tf_idf_file, name_idf
 
 def cosine_similarity(vec1, vec2):
 
-"""This function computes the cosine similarity between the two
-vectors provided as input"""
+    """This function computes the cosine similarity between the two
+    vectors provided as input"""
 
     num = np.dot(vec1, vec2)
     denom = np.linalg.norm(vec1) * np.linalg.norm(vec2)
@@ -550,8 +550,8 @@ vectors provided as input"""
 
 def tanimoto_distance(vec1, vec2):
 
-"""This function computes the tanimoto similarity between the two
-vectors provided as input"""
+    """This function computes the tanimoto similarity between the two
+    vectors provided as input"""
 
     num = np.dot(vec1, vec2)
     denom = np.square(np.linalg.norm(vec1)) + np.square(np.linalg.norm(vec2)) - num
@@ -561,9 +561,9 @@ vectors provided as input"""
 
 def search_k_matches(query, corpus, voc, ii, idfs, urls, k=10):
 
-"""This function finds the documents that match the query provided
-by the user, creates a max-heap out of them according to their 
-cosine similarity with the query and then returns the top k results."""
+    """This function finds the documents that match the query provided
+    by the user, creates a max-heap out of them according to their 
+    cosine similarity with the query and then returns the top k results."""
 
     # store the file with all information about the set of html pages (use at the end to return information of relevant documents)
     df = pd.read_csv("./html_df.csv")
@@ -622,9 +622,9 @@ cosine similarity with the query and then returns the top k results."""
 
 def process_query(query):
 
-"""This function processes a query string with the structure
-'main_query [parameter1=parameter1_query, parameter2=parameter2_query...'
-into its single components and returns them as a dictionary query_dict."""
+    """This function processes a query string with the structure
+    'main_query [parameter1=parameter1_query, parameter2=parameter2_query...'
+    into its single components and returns them as a dictionary query_dict."""
 
     query_dict = dict()
     main_query = re.search("^(.+)\[", query)
@@ -661,8 +661,8 @@ into its single components and returns them as a dictionary query_dict."""
 # This is the same thing i implemented in 2.2.2, I just put it in a function here.
 def evaluate_main_query(query, corpus, voc, ii, idfs):
 
-"""this function finds all the documents that match at least part
-of the main query"""
+    """this function finds all the documents that match at least part
+    of the main query"""
 
     dict_relevant = {}
     for word in query:
@@ -678,9 +678,9 @@ of the main query"""
 
 def evaluate_parameters(query_d, df, anime_num):
 
-"""For each parameter contained in the query dictionary, this function
-evaluates the correspondance with the field in the anime_num provided
-as input and returns an array of boolean and float values."""
+    """For each parameter contained in the query dictionary, this function
+    evaluates the correspondance with the field in the anime_num provided
+    as input and returns an array of boolean and float values."""
 
     relevant_row = df.iloc[anime_num]
     vector = []
@@ -729,11 +729,11 @@ as input and returns an array of boolean and float values."""
 
 def get_query_with_form():
 
-"""This function gets the query string via a form. It returns a string
-with the structure 'main_query [parameter1=parameter1_query, 
-parameter2=parameter2_query...' so that regardless of whether it was 
-btained directly or through this form, the inner logic of the overall
-algorithm doesn't change."""
+    """This function gets the query string via a form. It returns a string
+    with the structure 'main_query [parameter1=parameter1_query, 
+    parameter2=parameter2_query...' so that regardless of whether it was 
+    btained directly or through this form, the inner logic of the overall
+    algorithm doesn't change."""
 
     query_d = dict()
     main_query = input("Enter your query: ")
@@ -751,13 +751,13 @@ algorithm doesn't change."""
 
 def search_k_matches_2(corpus, voc, ii, idfs, urls, query=None, k=10):
 
-"""This function finds the documents that match the query provided
-by the user using both the main query and the parameterized elements.
-It uses the cosine distance for what concerts the tfidfs and the 
-tanimoto distance (more suited to binary values) to evaluate the
-correspondance between the parameters and the anime fields. 
-It then obtains a single score by averaging these two distances out,
-creates a max-heap and then returns the top k results."""
+    """This function finds the documents that match the query provided
+    by the user using both the main query and the parameterized elements.
+    It uses the cosine distance for what concerts the tfidfs and the 
+    tanimoto distance (more suited to binary values) to evaluate the
+    correspondance between the parameters and the anime fields. 
+    It then obtains a single score by averaging these two distances out,
+    creates a max-heap and then returns the top k results."""
 
     df = pd.read_csv("./html_df.csv")
     if not query:
