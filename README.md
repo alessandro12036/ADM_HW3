@@ -8,7 +8,7 @@
 
 This reposistory contains 
 - One notebook ```main.ipynb``` which gathers the answers of the homework. In this notebook, there are both the commands that display the answers to the questions and also markdowns that explain the steps.
-- One python file ```utilities.py``` which gathers every functions that we wrote used in ```main.ipynb```. There are markdowns to explain it.
+- One python file ```utilities.py``` which gathers every functions that we wrote used in ```main.ipynb```. There are docstrings for each function.
 - Different files used to store intermediate results :
 	- ```urls.txt``` : text file which contains URLs of pages
 	- ```counter_pages``` : counter of last saved page (1.2)
